@@ -136,44 +136,35 @@ public:
     }
 
     my_float operator*(const my_float& other) const {
-        // Step 1: Determine the signs
         bool sign = this->sign ^ other.sign; // XOR the signs
 
-        // Step 2: Extract mantissas and exponents
         unsigned long long mantissa_a = this->mantissa;
         unsigned long long mantissa_b = other.mantissa;
         int exponent_a = this->exponent - this->exponent_bias;  // Subtract the exponent bias
         int exponent_b = other.exponent - other.exponent_bias; // Subtract the exponent bias
 
-        // Step 3: Compute new mantissa and exponent
         unsigned long long mantissa_result = mantissa_a * mantissa_b;
         int exponent_result = exponent_a + exponent_b + this->exponent_bias; // Add the exponent bias back
 
-        // Step 4: Normalize if necessary
         if ((mantissa_result >> MantissaBits) != 0) {
             mantissa_result >>= 1;
             exponent_result += 1;
         }
 
-        // Step 5: Round mantissa to fit within mantissa bits
         unsigned long long rounded_mantissa = (mantissa_result + (1ULL << (MantissaBits - 1))) >> MantissaBits;
 
-        // Step 6: Adjust exponent if necessary
         if ((rounded_mantissa >> MantissaBits) != 0) {
             rounded_mantissa >>= 1;
             exponent_result += 1;
         }
 
-        // Step 7: Set sign of the result
         bool result_sign = sign;
 
-        // Step 8: Create new my_float object with calculated values
         my_float result;
         result.sign = result_sign;
         result.mantissa = rounded_mantissa & this->mantissa_mask;
         result.exponent = exponent_result;
 
-        // Step 9: Return the result
         return result;
     }
 
